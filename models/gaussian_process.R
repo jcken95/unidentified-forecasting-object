@@ -3,9 +3,12 @@ gaussian_process <- function(
     input_data,
     prediction_length
 ) {
+  
+  lengthscale <- 0.3
+  transformed_lengthscale <- lengthscale * max(input_data$t_numeric)
+  
   fitted_model <- mgcv::gam(
-    sightings_month ~ s(t_numeric, by = country_code, bs = "gp", m = c(2, 0.5, 2)) +
-      country_code ,
+    sightings_month ~ s(t_numeric, by = country_code, bs = "gp", m = c(-2, transformed_lengthscale, 2)) + country_code,
     data = input_data,
     family = "nb"
   )
