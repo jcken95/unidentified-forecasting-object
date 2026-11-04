@@ -34,7 +34,8 @@ gaussian_process <- function(
   ) |>
     dplyr::left_join(prediction_data, by = ".row") |>
     dplyr::mutate(
-      type = dplyr::if_else(month_year > max(input_data$month_year), "forecast", "fit")
+      type = dplyr::if_else(month_year > max(input_data$month_year), "forecast", "fit"),
+      name = "gaussian_process"
     )
   
   samples
