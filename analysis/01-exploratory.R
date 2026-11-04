@@ -14,10 +14,10 @@ total_sights_per_country |>
   dplyr::arrange(-n)
 
 low_sight_countries <- total_sights_per_country |>
-  # we're going to exclude those with 20 or fewer reports
+  # we're going to exclude those with 100 or fewer reports
   # just because it's going to make modelling easier
   # in practice, build better models :)
-  dplyr::filter(n <= 20) |>
+  dplyr::filter(n < 100) |>
   dplyr::pull(country_code)
 
 ufo_monthly <- ufo_sightings |>
@@ -48,13 +48,12 @@ ufo_complete <- ufo_monthly |>
   dplyr::mutate(sightings_month = dplyr::coalesce(sightings_month, 0))
 
 # select a subset for simplified plotting
-selected_countries <- sample(unique(ufo_complete$country_code), 9)
-
+selected_countries <- unique(ufo_complete$country_code)
 ufo_complete |> 
   dplyr::filter(country_code %in% selected_countries) |> 
   ggplot2::ggplot(
     ggplot2::aes(x = month_year, y = sightings_month)
   ) +
   ggplot2::geom_point() +
-  ggplot2::facet_wrap(ggplot2::vars(country_code))+
+  ggplot2::facet_wrap(ggplot2::vars(country_code), scales = "free_y") +
   ggplot2::theme_minimal()
