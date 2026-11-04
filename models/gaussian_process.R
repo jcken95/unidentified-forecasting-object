@@ -8,7 +8,9 @@ gaussian_process <- function(
   transformed_lengthscale <- lengthscale * max(input_data$t_numeric)
   
   fitted_model <- mgcv::gam(
-    sightings_month ~ s(t_numeric, by = country_code, bs = "gp", m = c(-2, transformed_lengthscale, 2)) + country_code,
+    sightings_month ~ s(t_numeric, by = country_code, bs = "gp", m = c(-2, transformed_lengthscale, 2)) + 
+      s(country_code, bs = "re") +
+      s(month, bs = "re"),
     data = input_data,
     family = "nb"
   )
@@ -19,6 +21,7 @@ gaussian_process <- function(
     ) |>
     dplyr::mutate(
       month_year = max(input_data$month_year) %m+% months(t_numeric - min(t_numeric) + 1),
+      month = forcats::as_factor(format(month_year, "%B")),
       sightings_month = NA_integer_
     )
   

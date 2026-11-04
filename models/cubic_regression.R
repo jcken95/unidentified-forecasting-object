@@ -8,7 +8,9 @@ cubic_regression <- function(
   transformed_lengthscale <- lengthscale * max(input_data$t_numeric)
   
   fitted_model <- mgcv::gam(
-    sightings_month ~ s(t_numeric, by = country_code, bs = "cr", k = 10) + country_code,
+    sightings_month ~ s(t_numeric, by = country_code, bs = "cr", k = 10) +
+      s(country_code, bs = "re") +
+      s(month, bs = "re"),
     data = input_data,
     family = "nb"
   )
@@ -19,6 +21,7 @@ cubic_regression <- function(
     ) |>
     dplyr::mutate(
       month_year = max(input_data$month_year) %m+% months(t_numeric - min(t_numeric) + 1),
+      month = forcats::as_factor(format(month_year, "%B")),
       sightings_month = NA_integer_
     )
   
