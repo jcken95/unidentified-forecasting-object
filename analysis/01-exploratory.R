@@ -17,7 +17,7 @@ low_sight_countries <- total_sights_per_country |>
   # we're going to exclude those with 100 or fewer reports
   # just because it's going to make modelling easier
   # in practice, build better models :)
-  dplyr::filter(n < 100) |>
+  dplyr::filter(n < 200) |>
   dplyr::pull(country_code)
 
 ufo_monthly <- ufo_sightings |>
