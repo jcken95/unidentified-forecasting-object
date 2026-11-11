@@ -138,7 +138,7 @@ ensemble_summary |>
 ensemble_summary_global <- model_fits |>
   dplyr::summarise(
     .response = sum(.response),
-    .by = c(month_year, name, .draw)
+    .by = c(month_year, name, .draw, type)
   ) |> 
   dplyr::summarise(
     
@@ -148,7 +148,7 @@ ensemble_summary_global <- model_fits |>
     pi_75 = quantile(.response, 0.75),
     pi_95 = quantile(.response, 0.95),
     
-    .by = c(month_year)
+    .by = c(month_year, type)
   ) |>
   dplyr::left_join(
     model_ready |>
@@ -160,9 +160,6 @@ fit_data_global <- fit_data |>
   dplyr::summarise(sightings_month = sum(sightings_month), .by = month_year)
 
 ensemble_summary_global |>
-  dplyr::mutate(
-    type = dplyr::if_else(month_year > max(fit_data$month_year),"forecast", "null")
-  ) |> 
   ggplot2::ggplot() +
   ggplot2::geom_ribbon(
     ggplot2::aes(x = month_year, ymin = pi_05, ymax = pi_95, fill = type),
