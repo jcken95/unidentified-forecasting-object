@@ -2,7 +2,7 @@ library(lubridate)
 gaussian_process <- function(
     input_data,
     prediction_length,
-    training_length = 36
+    training_length = 240
 ) {
   
   input_data <- input_data |>

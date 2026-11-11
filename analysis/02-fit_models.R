@@ -30,10 +30,10 @@ model_ready <- ufo_complete |>
                 country_code = forcats::as_factor(country_code))
 
 fit_data <- model_ready |>
-  dplyr::filter(month_year < lubridate::ymd("2020-01-01"))
+  dplyr::filter(month_year < lubridate::ymd("2010-01-01"))
 
-# predict up to the end of what data we have
-prediction_length <- dplyr::n_distinct(model_ready$month_year) - dplyr::n_distinct(fit_data$month_year)
+# predict two years ahead (monthly data)
+prediction_length <- 24
 
 # fit all models in one go
 model_fits <- purrr::map(
@@ -137,5 +137,3 @@ ensemble_summary |>
     values = c("forecast" = "blue")
   )
 
-# TODO: refactor models to take in a training length
-# TODO: "worldwide" predictions
