@@ -77,7 +77,7 @@ model_summary |>
 
 # zoom in on some others
 model_summary |> 
-  #dplyr::filter(country_code %in% c("GB", "ZA", "NZ")) |> 
+  #dplyr::filter(country_code == "US") |> 
   ggplot2::ggplot() +
   ggplot2::geom_ribbon(
     ggplot2::aes(x = month_year, ymin = pi_05, ymax = pi_95, fill = type),
@@ -110,7 +110,11 @@ ensemble_summary <- model_fits |>
     by = c("month_year", "country_code")
   )
 
-ensemble_summary |> 
+ensemble_summary |>
+  dplyr::filter(month_year > max(fit_data$month_year)) |> 
+  dplyr::mutate(
+    type = dplyr::if_else(type == "forecast", "forecast", "null")
+  ) |> 
   ggplot2::ggplot() +
   ggplot2::geom_ribbon(
     ggplot2::aes(x = month_year, ymin = pi_05, ymax = pi_95, fill = type),
@@ -122,7 +126,16 @@ ensemble_summary |>
   ) +
   ggplot2::geom_line(ggplot2::aes(x = month_year, y = pi_50, colour = type)) +
   ggplot2::geom_point(ggplot2::aes(x = month_year, y = sightings_month), size = 0.1) +
-  ggplot2::facet_wrap(~country_code, scale = "free_y", ncol = 1)
+  ggplot2::geom_point(
+    data = fit_data,
+    mapping = ggplot2::aes(x = month_year, y = sightings_month), size = 0.1) +
+  ggplot2::facet_wrap(~country_code, scale = "free_y", ncol = 1) +
+  ggplot2::scale_fill_manual(
+    values = c("forecast" = "blue")
+  ) +
+  ggplot2::scale_colour_manual(
+    values = c("forecast" = "blue")
+  )
 
 # TODO: refactor models to take in a training length
 # TODO: "worldwide" predictions

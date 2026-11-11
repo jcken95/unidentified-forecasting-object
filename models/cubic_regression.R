@@ -1,14 +1,18 @@
 library(lubridate)
 cubic_regression <- function(
     input_data,
-    prediction_length
+    prediction_length,
+    training_length = 240
 ) {
+  
+  input_data <- input_data |>
+    dplyr::filter(month_year >= max(month_year) - months(training_length))
   
   lengthscale <- 0.3
   transformed_lengthscale <- lengthscale * max(input_data$t_numeric)
   
   fitted_model <- mgcv::gam(
-    sightings_month ~ s(t_numeric, by = country_code, bs = "cr", k = 10) +
+    sightings_month ~ s(t_numeric, by = country_code, bs = "cr", k = 3) +
       s(country_code, bs = "re") +
       s(month, bs = "re"),
     data = input_data,

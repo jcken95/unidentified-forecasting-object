@@ -1,11 +1,15 @@
 library(lubridate)
 p_spline <- function(
     input_data,
-    prediction_length
+    prediction_date,
+    training_length = 240
 ) {
   
+  input_data <- input_data |>
+    dplyr::filter(month_year >= max(month_year) - months(training_length))
+  
   fitted_model <- mgcv::gam(
-    sightings_month ~ s(t_numeric, by = country_code, bs = "ps", k = 30) +
+    sightings_month ~ s(t_numeric, by = country_code, bs = "ps", k = 5) +
       s(country_code, bs = "re") +
       s(month, bs = "re"),
     data = input_data,
