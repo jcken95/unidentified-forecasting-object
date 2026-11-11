@@ -109,9 +109,7 @@ ensemble_summary <- model_fits |>
   )
 
 ensemble_summary |>
-  dplyr::mutate(
-    type = dplyr::if_else(type == "forecast", "forecast", "null")
-  ) |> 
+  dplyr::mutate(type = dplyr::if_else(type == "forecast", "forecast", "null")) |> 
   ggplot2::ggplot() +
   ggplot2::geom_ribbon(
     ggplot2::aes(x = month_year, ymin = pi_05, ymax = pi_95, fill = type),
@@ -128,11 +126,12 @@ ensemble_summary |>
     mapping = ggplot2::aes(x = month_year, y = sightings_month), size = 0.1) +
   ggplot2::facet_wrap(~country_code, scale = "free_y", ncol = 1) +
   ggplot2::scale_fill_manual(
-    values = c("forecast" = "blue")
+    values = c("forecast" = "blue", "null" = NA)
   ) +
   ggplot2::scale_colour_manual(
-    values = c("forecast" = "blue")
-  )
+    values = c("forecast" = "blue", "null" = NA)
+  ) +
+  ggplot2::theme(legend.position = "none")
 
 # add up predictions across each country
 ensemble_summary_global <- model_fits |>
@@ -160,6 +159,7 @@ fit_data_global <- fit_data |>
   dplyr::summarise(sightings_month = sum(sightings_month), .by = month_year)
 
 ensemble_summary_global |>
+  dplyr::mutate(type = dplyr::if_else(type == "forecast", "forecast", "null")) |> 
   ggplot2::ggplot() +
   ggplot2::geom_ribbon(
     ggplot2::aes(x = month_year, ymin = pi_05, ymax = pi_95, fill = type),
@@ -173,10 +173,10 @@ ensemble_summary_global |>
   ggplot2::geom_point(ggplot2::aes(x = month_year, y = sightings_month), size = 0.1) +
   ggplot2::facet_wrap(~"Global", scale = "free_y", ncol = 1) +
   ggplot2::scale_fill_manual(
-    values = c("forecast" = "blue")
+    values = c("forecast" = "blue", "null" = NA)
   ) +
   ggplot2::scale_colour_manual(
-    values = c("forecast" = "blue")
-  )
-# around 7 times as many forecast rows per day
+    values = c("forecast" = "blue", "null" = NA)
+  ) +
+  ggplot2::theme(legend.position = "none")
 
