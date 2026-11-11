@@ -77,7 +77,6 @@ model_summary |>
 
 # zoom in on some others
 model_summary |> 
-  #dplyr::filter(country_code == "US") |> 
   ggplot2::ggplot() +
   ggplot2::geom_ribbon(
     ggplot2::aes(x = month_year, ymin = pi_05, ymax = pi_95, fill = type),
@@ -91,9 +90,8 @@ model_summary |>
   ggplot2::geom_point(ggplot2::aes(x = month_year, y = sightings_month), size = 0.1) +
   ggplot2::facet_grid(country_code ~ name, scale = "free_y")
 
-# mixed quality predictions
-# occasionally drastically poor predictions in BB, ZA, NZ!
 
+# generate ensemble by taking quantiles over all .response values
 ensemble_summary <- model_fits |>
   dplyr::summarise(
     
@@ -111,7 +109,6 @@ ensemble_summary <- model_fits |>
   )
 
 ensemble_summary |>
-  dplyr::filter(month_year > max(fit_data$month_year)) |> 
   dplyr::mutate(
     type = dplyr::if_else(type == "forecast", "forecast", "null")
   ) |> 
@@ -136,4 +133,53 @@ ensemble_summary |>
   ggplot2::scale_colour_manual(
     values = c("forecast" = "blue")
   )
+
+# add up predictions across each country
+ensemble_summary_global <- model_fits |>
+  dplyr::summarise(
+    .response = sum(.response),
+    .by = c(month_year, name, .draw)
+  ) |> 
+  dplyr::summarise(
+    
+    pi_05 = quantile(.response, 0.05),
+    pi_25 = quantile(.response, 0.25),
+    pi_50 = quantile(.response, 0.50),
+    pi_75 = quantile(.response, 0.75),
+    pi_95 = quantile(.response, 0.95),
+    
+    .by = c(month_year)
+  ) |>
+  dplyr::left_join(
+    model_ready |>
+      dplyr::summarise(sightings_month = sum(sightings_month), .by = month_year),
+    by = c("month_year")
+  )
+
+fit_data_global <- fit_data |>
+  dplyr::summarise(sightings_month = sum(sightings_month), .by = month_year)
+
+ensemble_summary_global |>
+  dplyr::mutate(
+    type = dplyr::if_else(month_year > max(fit_data$month_year),"forecast", "null")
+  ) |> 
+  ggplot2::ggplot() +
+  ggplot2::geom_ribbon(
+    ggplot2::aes(x = month_year, ymin = pi_05, ymax = pi_95, fill = type),
+    alpha = 0.2
+  ) +
+  ggplot2::geom_ribbon(
+    ggplot2::aes(x = month_year, ymin = pi_25, ymax = pi_75, fill = type),
+    alpha = 0.2
+  ) +
+  ggplot2::geom_line(ggplot2::aes(x = month_year, y = pi_50, colour = type)) +
+  ggplot2::geom_point(ggplot2::aes(x = month_year, y = sightings_month), size = 0.1) +
+  ggplot2::facet_wrap(~"Global", scale = "free_y", ncol = 1) +
+  ggplot2::scale_fill_manual(
+    values = c("forecast" = "blue")
+  ) +
+  ggplot2::scale_colour_manual(
+    values = c("forecast" = "blue")
+  )
+# around 7 times as many forecast rows per day
 
