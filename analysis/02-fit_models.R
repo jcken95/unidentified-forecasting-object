@@ -88,7 +88,8 @@ model_summary |>
   ) +
   ggplot2::geom_line(ggplot2::aes(x = month_year, y = pi_50, colour = type)) +
   ggplot2::geom_point(ggplot2::aes(x = month_year, y = sightings_month), size = 0.1) +
-  ggplot2::facet_grid(country_code ~ name, scale = "free_y")
+  ggplot2::facet_grid(country_code ~ name, scale = "free_y") +
+  ggplot2::theme_minimal()
 
 
 # generate ensemble by taking quantiles over all .response values
@@ -131,7 +132,17 @@ ensemble_summary |>
   ggplot2::scale_colour_manual(
     values = c("forecast" = "blue", "null" = NA)
   ) +
-  ggplot2::theme(legend.position = "none")
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position = "none") +
+  ggplot2::labs(
+    x = "Report date",
+    y = "Monthly UFO sighting reports"
+  ) +
+  ggplot2::ggtitle(
+    "Regional predictions with observed number of reports",
+    subtitle = "Median prediction with 50% and 90% predictive intervals"
+  )
+
 
 # add up predictions across each country
 ensemble_summary_global <- model_fits |>
@@ -171,12 +182,20 @@ ensemble_summary_global |>
   ) +
   ggplot2::geom_line(ggplot2::aes(x = month_year, y = pi_50, colour = type)) +
   ggplot2::geom_point(ggplot2::aes(x = month_year, y = sightings_month), size = 0.1) +
-  ggplot2::facet_wrap(~"Global", scale = "free_y", ncol = 1) +
   ggplot2::scale_fill_manual(
     values = c("forecast" = "blue", "null" = NA)
   ) +
   ggplot2::scale_colour_manual(
     values = c("forecast" = "blue", "null" = NA)
   ) +
-  ggplot2::theme(legend.position = "none")
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position = "none") +
+  ggplot2::labs(
+    x = "Report date",
+    y = "Monthly UFO sighting reports"
+  ) +
+  ggplot2::ggtitle(
+    "Aggregate prediction with observed number of reports",
+    subtitle = "Median prediction with 50% and 90% predictive intervals"
+  )
 
