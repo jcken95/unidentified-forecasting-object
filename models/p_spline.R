@@ -1,7 +1,7 @@
 library(lubridate)
 p_spline <- function(
     input_data,
-    prediction_date,
+    prediction_length,
     training_length = 240
 ) {
   
